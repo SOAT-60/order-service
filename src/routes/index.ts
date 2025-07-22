@@ -7,8 +7,8 @@ import { safeJsonParse } from "../utils/parser.util";
 const router = Router();
 router.use(cors);
 
-router.get("/", async (req, res) => {
-  return res.status(200).json({ message: "Orders server is up!" });
+router.get("/health", (_, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 router.post("/order/create", async (req, res) => {
