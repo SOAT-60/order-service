@@ -54,7 +54,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ougb60/pedidos-service:latest,dougb60/pedidos-service:${{ github.sha }}
+          tags: dougb60/pedidos-service:latest,dougb60/pedidos-service:${{ github.sha }}
           no-cache: true
 
       - name: Verify built image contents
