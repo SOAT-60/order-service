@@ -83,5 +83,5 @@ jobs:
               -e DB_PORT=3306 \
               -e DB_USER=${{ secrets.DB_USER_PEDIDOS }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD_PEDIDOS }} \
-              -e DB_DATABASE=pedidos-service \
+              -e DB_DATABASE=pedidos_service \
               dougb60/pedidos-service:latest
