@@ -5,7 +5,7 @@ import { OrderController } from "../controller";
 import { safeJsonParse } from "../utils/parser.util";
 
 const router = Router();
-router.use(cors);
+router.use(cors({ origin: "*" }));
 
 router.get("/health", (_, res) => {
   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });

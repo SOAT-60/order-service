@@ -1,0 +1,87 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run tests and coverage
+        run: yarn test --coverage
+
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=$(cat ./coverage/coverage-summary.json | jq -r '.total.lines.pct')
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "Code coverage is below 80% (Current: $COVERAGE%)"
+            exit 1
+          fi
+          echo "Code coverage is at $COVERAGE%"
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ougb60/pedidos-service:latest,dougb60/pedidos-service:${{ github.sha }}
+          no-cache: true
+
+      - name: Verify built image contents
+        run: |
+          docker pull dougb60/pedidos-service:latest
+          docker run --rm dougb60/pedidos-service:latest ls -la /app/dist
+          docker run --rm dougb60/pedidos-service:latest cat /app/dist/index.js | head -n 20
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull dougb60/pedidos-service:latest || true
+            docker stop pedidos-service || true
+            docker rm pedidos-service || true
+            docker rmi dougb60/pedidos-service:latest || true
+            docker run -d \
+              --name pedidos-service \
+              -p 3001:3001 \
+              --network microservices-network \
+              -e PORT=3001 \
+              -e DB_HOST=${{ secrets.DB_HOST_PEDIDOS }} \
+              -e DB_PORT=3306 \
+              -e DB_USER=${{ secrets.DB_USER_PEDIDOS }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD_PEDIDOS }} \
+              -e DB_DATABASE=pedidos-service \
+              dougb60/pedidos-service:latest

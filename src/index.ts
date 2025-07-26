@@ -12,6 +12,9 @@ async function main() {
     await AppDataSource.initialize();
     console.log("Data base running...");
 
+    await AppDataSource.runMigrations();
+    console.log("Migrations executed...");
+
     const app = express();
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));

@@ -8,7 +8,7 @@ export class ProductServiceImpl implements ProductService {
   private readonly basURL: string;
 
   constructor() {
-    this.basURL = "http://localhost:3000";
+    this.basURL = "http://produtos-service:3002";
   }
 
   async findById(

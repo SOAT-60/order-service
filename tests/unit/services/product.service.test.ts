@@ -4,6 +4,7 @@ import axios from "axios";
 
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
+const serviceURL = "http://produtos-service:3002";
 
 describe("ProductServiceImpl", () => {
   let service: ProductServiceImpl;
@@ -39,9 +40,7 @@ describe("ProductServiceImpl", () => {
 
       expect(result.error).toBe(false);
       expect(result.product).toEqual(mockProduct);
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        "http://localhost:3000/product/1"
-      );
+      expect(mockedAxios.get).toHaveBeenCalledWith(`${serviceURL}/product/1`);
       expect(mockedAxios.get).toHaveBeenCalledTimes(1);
     });
 
@@ -56,9 +55,7 @@ describe("ProductServiceImpl", () => {
 
       expect(result.error).toBe(true);
       expect(result.product).toBeNull();
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        "http://localhost:3000/product/999"
-      );
+      expect(mockedAxios.get).toHaveBeenCalledWith(`${serviceURL}/product/999`);
     });
 
     it("deve propagar erro quando axios falha", async () => {
@@ -66,9 +63,7 @@ describe("ProductServiceImpl", () => {
       mockedAxios.get.mockRejectedValue(axiosError);
 
       await expect(service.findById(1)).rejects.toThrow("Network error");
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        "http://localhost:3000/product/1"
-      );
+      expect(mockedAxios.get).toHaveBeenCalledWith(`${serviceURL}/product/1`);
     });
 
     it("deve usar a URL base correta", async () => {
@@ -80,9 +75,7 @@ describe("ProductServiceImpl", () => {
 
       await service.findById(123);
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        "http://localhost:3000/product/123"
-      );
+      expect(mockedAxios.get).toHaveBeenCalledWith(`${serviceURL}/product/123`);
     });
 
     it("deve chamar API com diferentes IDs", async () => {
@@ -98,15 +91,15 @@ describe("ProductServiceImpl", () => {
 
       expect(mockedAxios.get).toHaveBeenNthCalledWith(
         1,
-        "http://localhost:3000/product/1"
+        `${serviceURL}/product/1`
       );
       expect(mockedAxios.get).toHaveBeenNthCalledWith(
         2,
-        "http://localhost:3000/product/2"
+        `${serviceURL}/product/2`
       );
       expect(mockedAxios.get).toHaveBeenNthCalledWith(
         3,
-        "http://localhost:3000/product/100"
+        `${serviceURL}/product/100`
       );
       expect(mockedAxios.get).toHaveBeenCalledTimes(3);
     });

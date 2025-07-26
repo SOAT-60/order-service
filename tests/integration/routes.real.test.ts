@@ -134,9 +134,9 @@ describe("Routes Unit Tests", () => {
     require("../../src/routes");
   });
 
-  describe("GET /", () => {
+  describe("GET /health", () => {
     it("deve retornar health check", async () => {
-      const handler = mockRoutes["GET/"].handler;
+      const handler = mockRoutes["GET/health"].handler;
 
       const mockReq = {};
       const mockRes = {
@@ -148,7 +148,8 @@ describe("Routes Unit Tests", () => {
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
-        message: "Orders server is up!",
+        status: "ok",
+        timestamp: expect.any(String),
       });
     });
   });
