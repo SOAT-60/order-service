@@ -18,6 +18,9 @@ export class OrderItemEntity {
   @Column("decimal", { precision: 10, scale: 2 })
   snapshot_price: number;
 
+  @Column("varchar", { length: 255 })
+  snapshot_name: string;
+
   @Column("int")
   item_id: number;
 

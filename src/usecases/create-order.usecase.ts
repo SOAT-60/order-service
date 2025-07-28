@@ -22,6 +22,7 @@ export class CreateOrderUseCase implements ICreateOrderUseCase {
         productId: number;
         quantity: number;
         price: number;
+        snapshot_name: string;
       }[] = [];
 
       const itemsError: {
@@ -35,6 +36,7 @@ export class CreateOrderUseCase implements ICreateOrderUseCase {
             productId: foundProduct.product?.id,
             quantity: item.quantity,
             price: foundProduct.product.price,
+            snapshot_name: foundProduct.product.name,
           });
         } else {
           itemsError.push({ productId: item.productId });

@@ -20,11 +20,25 @@ export class ListOrderUseCase implements IListOrderUseCase {
         );
       }
 
-      const formmattedOrders = orders.filter((order) => {
-        return order.status !== "FINALIZADO";
-      });
+      const formattedOrders = orders
+        .filter((order) => order.status !== "FINALIZADO")
+        .map((order) => ({
+          ...order,
+          items:
+            order.items?.map((item) => ({
+              id: item.id,
+              quantity: item.quantity,
+              snapshot_price: item.snapshot_price,
+              item_id: item.item_id,
+              snapshot_name: item.snapshot_name,
+            })) || [],
+          totalPrice:
+            order.items?.reduce((acc, item) => {
+              return acc + item.snapshot_price * item.quantity;
+            }, 0) || 0,
+        }));
 
-      return formmattedOrders;
+      return formattedOrders;
     } catch (error) {
       throw error;
     }
