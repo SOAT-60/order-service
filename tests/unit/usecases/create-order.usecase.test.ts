@@ -62,8 +62,20 @@ describe("CreateOrderUseCase", () => {
       code: "ORDER-001",
       paymentStatus: "PENDING",
       items: [
-        { id: 1, quantity: 2, snapshot_price: 10.5, item_id: 1 },
-        { id: 2, quantity: 1, snapshot_price: 25.0, item_id: 2 },
+        {
+          id: 1,
+          quantity: 2,
+          snapshot_price: 10.5,
+          item_id: 1,
+          snapshot_name: "Product 1",
+        },
+        {
+          id: 2,
+          quantity: 1,
+          snapshot_price: 25.0,
+          item_id: 2,
+          snapshot_name: "Product 2",
+        },
       ],
     };
 
@@ -88,8 +100,18 @@ describe("CreateOrderUseCase", () => {
         status: mockOrderData.status,
         code: mockOrderData.code,
         items: [
-          { productId: 1, quantity: 2, price: 10.5 },
-          { productId: 2, quantity: 1, price: 25.0 },
+          {
+            productId: 1,
+            quantity: 2,
+            price: 10.5,
+            snapshot_name: "Product 1",
+          },
+          {
+            productId: 2,
+            quantity: 1,
+            price: 25.0,
+            snapshot_name: "Product 2",
+          },
         ],
         totalPrice: 46.0, // (10.50 * 2) + (25.00 * 1)
       });
@@ -115,7 +137,14 @@ describe("CreateOrderUseCase", () => {
         orderDate: mockOrderData.orderDate,
         status: mockOrderData.status,
         code: mockOrderData.code,
-        items: [{ productId: 1, quantity: 2, price: 10.5 }],
+        items: [
+          {
+            productId: 1,
+            quantity: 2,
+            price: 10.5,
+            snapshot_name: "Product 1",
+          },
+        ],
         totalPrice: 21.0,
       });
     });
@@ -137,6 +166,14 @@ describe("CreateOrderUseCase", () => {
       expect(mockRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           totalPrice: 52.5,
+          items: [
+            {
+              productId: 1,
+              quantity: 5,
+              price: 10.5,
+              snapshot_name: "Product 1",
+            },
+          ],
         })
       );
     });
@@ -149,7 +186,6 @@ describe("CreateOrderUseCase", () => {
       const repositoryError = new Error("Database error");
       mockRepository.create.mockRejectedValue(repositoryError);
 
-      // Act & Assert
       await expect(
         useCase.createOrder({
           ...mockOrderData,

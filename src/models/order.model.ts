@@ -4,6 +4,7 @@ export interface Order {
   status: string;
   code: string;
   paymentStatus: string;
+  totalPrice?: number;
   items?: {
     id: number;
     quantity: number;
