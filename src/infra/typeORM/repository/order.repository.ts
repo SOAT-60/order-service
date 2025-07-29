@@ -8,6 +8,14 @@ import { CreateOrderRequestDTO } from "../../../dtos/create-order.dto";
 import { Order } from "../../../models/order.model";
 import { findWithOrder } from "./order.query-builder";
 
+interface OrderItem {
+  id: number;
+  quantity: number;
+  snapshot_price: number;
+  snapshot_name: string;
+  item_id: number;
+}
+
 @injectable()
 export class OrderRepositoryImpl implements OrderRepository {
   private repository: Repository<OrderEntity>;
@@ -27,8 +35,9 @@ export class OrderRepositoryImpl implements OrderRepository {
       paymentStatus: "PENDING",
       items: order.items.map((item) => ({
         quantity: item.quantity,
-        snapshot_price: item.price,
+        snapshot_price: item.price || 0,
         item_id: item.productId,
+        snapshot_name: item.snapshot_name || "",
       })),
     });
 
@@ -52,13 +61,16 @@ export class OrderRepositoryImpl implements OrderRepository {
 
     return result
       .map((order) => {
-        const items = order.items.map((item: any) => ({
-          productId: item.id,
-          quantity: item.quantity,
-          price: item.price,
-        }));
+        const items =
+          order.items?.map((item: OrderItem) => ({
+            id: item.id,
+            quantity: item.quantity,
+            snapshot_price: item.snapshot_price,
+            snapshot_name: item.snapshot_name,
+            item_id: item.item_id,
+          })) || [];
 
-        const totalPrice = items?.reduce((acc: number, item: any) => {
+        const totalPrice = items.reduce((acc: number, item: OrderItem) => {
           return acc + item.snapshot_price * item.quantity;
         }, 0);
 
@@ -84,12 +96,16 @@ export class OrderRepositoryImpl implements OrderRepository {
     });
 
     if (!result) return null;
-    const items = result?.items.map((item: any) => ({
-      ...item,
+    const items = result?.items.map((item: OrderItem) => ({
+      id: item.id,
+      quantity: item.quantity,
+      snapshot_price: item.snapshot_price,
+      snapshot_name: item.snapshot_name,
+      item_id: item.item_id,
     }));
 
-    const totalPrice = items?.reduce((acc: number, item: any) => {
-      return acc + item.price * item.quantity;
+    const totalPrice = items?.reduce((acc: number, item: OrderItem) => {
+      return acc + item.snapshot_price * item.quantity;
     }, 0);
 
     return {
@@ -117,11 +133,15 @@ export class OrderRepositoryImpl implements OrderRepository {
 
     if (!result) return null;
 
-    const items = result?.items.map((item: any) => ({
-      ...item,
+    const items = result?.items.map((item: OrderItem) => ({
+      id: item.id,
+      quantity: item.quantity,
+      snapshot_price: item.snapshot_price,
+      snapshot_name: item.snapshot_name,
+      item_id: item.item_id,
     }));
 
-    const totalPrice = items?.reduce((acc: number, item: any) => {
+    const totalPrice = items?.reduce((acc: number, item: OrderItem) => {
       return acc + item.snapshot_price * item.quantity;
     }, 0);
 

@@ -6,5 +6,6 @@ export interface CreateOrderRequestDTO {
     productId: number;
     quantity: number;
     price?: number;
+    snapshot_name?: string;
   }[];
 }
